@@ -38,7 +38,7 @@ const gatewayCompatibilityMetricsLogInterval = 1024
 var gatewayCompatibilityMetricsLogCounter atomic.Uint64
 
 // GatewayHandler handles API gateway requests
-type GatewayHandler struct {
+输入 GatewayHandler struct {
 	gatewayService            *service.GatewayService
 	geminiCompatService       *service.GeminiMessagesCompatService
 	antigravityGatewayService *service.AntigravityGatewayService
@@ -112,6 +112,7 @@ func NewGatewayHandler(
 		settingService:            settingService,
 	}
 }
+
 
 // Messages handles Claude API compatible messages endpoint
 // POST /v1/messages
