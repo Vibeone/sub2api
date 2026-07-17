@@ -189,6 +189,7 @@ func (h *SettingHandler) GetRectifierSettings(c *gin.Context) {
 		Enabled:                  settings.Enabled,
 		ThinkingSignatureEnabled: settings.ThinkingSignatureEnabled,
 		ThinkingBudgetEnabled:    settings.ThinkingBudgetEnabled,
+		ThinkingDisplayMode:      settings.ThinkingDisplayMode,
 		APIKeySignatureEnabled:   settings.APIKeySignatureEnabled,
 		APIKeySignaturePatterns:  patterns,
 	})
@@ -199,6 +200,7 @@ type UpdateRectifierSettingsRequest struct {
 	Enabled                  bool     `json:"enabled"`
 	ThinkingSignatureEnabled bool     `json:"thinking_signature_enabled"`
 	ThinkingBudgetEnabled    bool     `json:"thinking_budget_enabled"`
+	ThinkingDisplayMode      string   `json:"thinking_display_mode"`
 	APIKeySignatureEnabled   bool     `json:"apikey_signature_enabled"`
 	APIKeySignaturePatterns  []string `json:"apikey_signature_patterns"`
 }
@@ -232,10 +234,22 @@ func (h *SettingHandler) UpdateRectifierSettings(c *gin.Context) {
 		cleanedPatterns = append(cleanedPatterns, p)
 	}
 
+	displayMode := strings.TrimSpace(req.ThinkingDisplayMode)
+	if displayMode == "" {
+		displayMode = service.ThinkingDisplayModeDisplayOnly
+	}
+	switch displayMode {
+	case service.ThinkingDisplayModeOff, service.ThinkingDisplayModeDisplayOnly, service.ThinkingDisplayModeForce:
+	default:
+		response.BadRequest(c, "Invalid thinking_display_mode (expected off, display_only or force)")
+		return
+	}
+
 	settings := &service.RectifierSettings{
 		Enabled:                  req.Enabled,
 		ThinkingSignatureEnabled: req.ThinkingSignatureEnabled,
 		ThinkingBudgetEnabled:    req.ThinkingBudgetEnabled,
+		ThinkingDisplayMode:      displayMode,
 		APIKeySignatureEnabled:   req.APIKeySignatureEnabled,
 		APIKeySignaturePatterns:  cleanedPatterns,
 	}
@@ -260,6 +274,7 @@ func (h *SettingHandler) UpdateRectifierSettings(c *gin.Context) {
 		Enabled:                  updatedSettings.Enabled,
 		ThinkingSignatureEnabled: updatedSettings.ThinkingSignatureEnabled,
 		ThinkingBudgetEnabled:    updatedSettings.ThinkingBudgetEnabled,
+		ThinkingDisplayMode:      updatedSettings.ThinkingDisplayMode,
 		APIKeySignatureEnabled:   updatedSettings.APIKeySignatureEnabled,
 		APIKeySignaturePatterns:  updatedPatterns,
 	})
